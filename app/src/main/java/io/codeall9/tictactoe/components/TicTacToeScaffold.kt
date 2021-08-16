@@ -18,7 +18,7 @@ fun TicTacToeScaffold(content: @Composable() (PaddingValues) -> Unit) {
                     title = { Text(text = stringResource(id = R.string.app_name)) }
                 )
             },
-            bodyContent = content
+            content = content
         )
     }
 }

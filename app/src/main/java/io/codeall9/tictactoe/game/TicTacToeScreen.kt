@@ -36,10 +36,10 @@ fun TicTacToeScreen(
             onClick = onRestart,
             modifier = Modifier
                 .padding(16.dp)
-                .preferredHeightIn(min = 56.dp)
+                .heightIn(min = 56.dp)
                 .fillMaxWidth()
         ) {
-            Icon(imageVector = Icons.Filled.Refresh)
+            Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Refresh")
             Spacer(modifier = Modifier.padding(4.dp))
             Text(text = stringResource(id = R.string.button_restart))
         }
