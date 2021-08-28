@@ -1,55 +1,86 @@
 package io.codeall9.tictactoe.game
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import io.codeall9.tictactoe.model.Player
+import android.util.Log
+import androidx.lifecycle.*
+import io.codeall9.tictactoe.TicTacToeInitializer
+import io.codeall9.tictactoe.initLocalGame
+import io.codeall9.tictactoe.model.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class GameViewModel: ViewModel() {
+private val boxOrders = listOf(
+    CellPosition.TopStart,
+    CellPosition.TopCenter,
+    CellPosition.TopEnd,
+    CellPosition.CenterStart,
+    CellPosition.Center,
+    CellPosition.CenterEnd,
+    CellPosition.BottomStart,
+    CellPosition.BottomCenter,
+    CellPosition.BottomEnd,
+)
 
-    private var match = TicTacToeMatch(Player.O, Player.X)
+data class Box(val position: CellPosition, val cell: Cell)
 
-    var boardState by mutableStateOf(emptyBoard())
+class GameViewModel(
+    private val initGame: TicTacToeInitializer = initLocalGame,
+    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
+): ViewModel() {
 
-    var isGameOverState by mutableStateOf(false)
+    private val gameState = MutableLiveData<MatchResult>()
 
-    var winnerState by mutableStateOf<Player?>(null)
-
-    fun onPlayerMove(index: Int) {
-        if (isGameOverState || boardState[index] != ' ') return
-
-        boardState[index] = match.currentPlayer.flag
-
-        updateGameStatus()
+    val gridBoxes: LiveData<List<Box>> = gameState.map { result ->
+        boxOrders.map { position ->  Box(position, result.board[position]) }
     }
 
-    fun resetGame() {
-        boardState = emptyBoard()
-        match = TicTacToeMatch(Player.O, Player.X)
-        isGameOverState = false
-    }
-
-    private fun emptyBoard() = mutableStateListOf(
-        ' ', ' ', ' ',
-        ' ', ' ', ' ',
-        ' ', ' ', ' ',
-    )
-
-    private fun updateGameStatus() {
-        when {
-            match.checkIsGameOver(boardState) -> {
-                isGameOverState = true
-                winnerState = match.currentPlayer
-            }
-            match.isEnded -> {
-                isGameOverState = true
-                winnerState = null
-            }
-            else -> {
-                match.nextRound()
-            }
+    val gameWinner: LiveData<Player?> = gameState
+        .map { result ->
+            result.let { it as? GameOver }
+                ?.winner
         }
+        .distinctUntilChanged()
+
+    val gameTie: LiveData<Boolean> = gameState.map { it is GameTie }
+
+    init {
+        viewModelScope.launchNewGame()
+    }
+
+    fun onPlayerMove(position: CellPosition) {
+        val current = gameState.value ?: return
+        viewModelScope.launch(workerDispatcher) {
+            current.runCatching { onPlayerMove(position) }
+                .onSuccess { newState -> gameState.postValue(newState) }
+                .onFailure { Log.e("TicTacToe", "action is rejected", it) }
+        }
+    }
+
+    fun restartGame() {
+        viewModelScope.launchNewGame()
+    }
+
+    @Throws(IllegalStateException::class, IllegalArgumentException::class)
+    private suspend fun MatchResult.onPlayerMove(position: CellPosition): MatchResult {
+        return when (this) {
+            is PlayerOTurn -> {
+                requireNotNull(actions[position]) { "$position is not markable" }
+                    .run { invoke() }
+            }
+            is PlayerXTurn -> {
+                requireNotNull(actions[position]) { "$position is not markable" }
+                    .run { invoke() }
+            }
+            else -> this
+        }
+    }
+
+    private fun CoroutineScope.launchNewGame(
+        context: CoroutineContext = workerDispatcher,
+        first: Player = Player.O,
+    ) = launch(context) {
+        gameState.postValue(initGame(first))
     }
 }

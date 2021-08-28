@@ -7,8 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -24,39 +28,76 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TicTacToeScaffold {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    TicTacToeScreen(
-                        board = gameViewModel.boardState,
-                        onPlayerMove = gameViewModel::onPlayerMove,
-                        onRestart = gameViewModel::resetGame,
-                        modifier = Modifier.padding(4.dp)
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                    )
-                    GameResult(gameViewModel)
+                val gridBoxes by gameViewModel.gridBoxes.observeAsState(emptyList())
+                val gameTie by gameViewModel.gameTie.observeAsState(initial = false)
+                val gameWinner by gameViewModel.gameWinner.observeAsState()
+
+                TicTacToeScreen(
+                    boxes = gridBoxes,
+                    onPlayerMove = gameViewModel::onPlayerMove,
+                    onRestart = gameViewModel::restartGame,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                )
+                val winner = gameWinner?.name
+                if (winner != null) {
+                    AlertWinner(winnerName = winner, onConfirm = gameViewModel::restartGame)
+                } else if (gameTie) {
+                    AlertGameTie(onConfirm = gameViewModel::restartGame)
                 }
             }
         }
     }
 
     @Composable
-    private fun GameResult(viewModel: GameViewModel) {
-        if (!viewModel.isGameOverState) return
+    private fun AlertWinner(
+        modifier: Modifier = Modifier,
+        winnerName: String,
+        onDismissRequest: () -> Unit = { /* no-op */ },
+        onConfirm: () -> Unit = { /* no-op */ },
+    ) {
+        AlertGameResult(
+            text = { Text(text = stringResource(id = R.string.game_winner, winnerName)) },
+            onConfirm = onConfirm,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier
+        )
+    }
 
+    @Composable
+    private fun AlertGameTie(
+        modifier: Modifier = Modifier,
+        onDismissRequest: () -> Unit = { /* no-op */ },
+        onConfirm: () -> Unit = { /* no-op */ },
+    ) {
+        AlertGameResult(
+            text = { Text(text = stringResource(id = R.string.game_tie)) },
+            onConfirm = onConfirm,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier
+        )
+    }
+
+    @Composable
+    private fun AlertGameResult(
+        modifier: Modifier = Modifier,
+        text: @Composable (() -> Unit)? = null,
+        title: @Composable (() -> Unit)? = { Text(text = stringResource(id = R.string.game_over)) },
+        onConfirm: () -> Unit = { /* no-op */ },
+        onDismissRequest: () -> Unit = { /* no-op */ },
+    ) {
         AlertDialog(
-            onDismissRequest = {},
-            title = { Text(text = stringResource(id = R.string.game_over)) },
-            text = {
-                viewModel.winnerState
-                    ?.let { Text(text = stringResource(id = R.string.game_winner, it.name)) }
-                    ?: Text(text = stringResource(id = R.string.game_tie))
-            },
+            onDismissRequest = onDismissRequest,
+            title = title,
+            text = text,
             confirmButton = {
-                Button(onClick = viewModel::resetGame) {
+                Button(onClick = onConfirm) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
-            }
+            },
+            modifier = modifier
         )
     }
 }

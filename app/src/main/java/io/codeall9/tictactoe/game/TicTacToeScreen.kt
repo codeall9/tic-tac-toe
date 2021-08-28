@@ -14,14 +14,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.codeall9.tictactoe.R
+import io.codeall9.tictactoe.components.GameBoard
+import io.codeall9.tictactoe.model.Cell
+import io.codeall9.tictactoe.model.CellPosition
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 
 @Composable
 fun TicTacToeScreen(
     modifier: Modifier = Modifier,
-    board: List<Char>,
-    onPlayerMove: (Int) -> Unit = {},
-    onRestart: () -> Unit = {},
+    boxes: List<Box>,
+    onPlayerMove: (CellPosition) -> Unit = { /* no-op */ },
+    onRestart: () -> Unit = { /* no-op */ },
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -29,8 +32,8 @@ fun TicTacToeScreen(
         modifier = modifier,
     ) {
         GameBoard(
-            cells = board,
-            onItemClick = onPlayerMove
+            boxes = boxes,
+            onCellClick = onPlayerMove
         )
         Button(
             onClick = onRestart,
@@ -39,7 +42,7 @@ fun TicTacToeScreen(
                 .heightIn(min = 56.dp)
                 .fillMaxWidth()
         ) {
-            Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Refresh")
+            Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Restart")
             Spacer(modifier = Modifier.padding(4.dp))
             Text(text = stringResource(id = R.string.button_restart))
         }
@@ -52,10 +55,10 @@ private fun TicTacToeLightPreview() {
     TicTacToeTheme(false) {
         Surface {
             TicTacToeScreen(
-                board = listOf(
-                    'X', ' ', 'X',
-                    ' ', 'O', ' ',
-                    'O', ' ', ' ',
+                boxes = listOf(
+                    Box(CellPosition.TopStart, Cell.X), Box(CellPosition.TopCenter, Cell.Empty), Box(CellPosition.TopEnd, Cell.X),
+                    Box(CellPosition.CenterStart, Cell.Empty), Box(CellPosition.Center, Cell.O), Box(CellPosition.CenterEnd, Cell.Empty),
+                    Box(CellPosition.BottomStart, Cell.O), Box(CellPosition.BottomCenter, Cell.Empty), Box(CellPosition.BottomEnd, Cell.Empty),
                 ),
             )
         }
@@ -68,10 +71,10 @@ private fun TicTacToeDarkPreview() {
     TicTacToeTheme(true) {
         Surface {
             TicTacToeScreen(
-                board = listOf(
-                    ' ', 'O', 'X',
-                    'O', 'O', 'X',
-                    ' ', 'X', 'O',
+                boxes = listOf(
+                    Box(CellPosition.TopStart, Cell.Empty), Box(CellPosition.TopCenter, Cell.O), Box(CellPosition.TopEnd, Cell.X),
+                    Box(CellPosition.CenterStart, Cell.O), Box(CellPosition.Center, Cell.O), Box(CellPosition.CenterEnd, Cell.X),
+                    Box(CellPosition.BottomStart, Cell.Empty), Box(CellPosition.BottomCenter, Cell.X), Box(CellPosition.BottomEnd, Cell.O),
                 ),
             )
         }
