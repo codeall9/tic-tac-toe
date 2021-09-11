@@ -8,9 +8,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.codeall9.engine.model.Cell
+import io.codeall9.engine.model.CellPosition
 import io.codeall9.tictactoe.game.Box
-import io.codeall9.tictactoe.model.Cell
-import io.codeall9.tictactoe.model.CellPosition
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 
 
@@ -88,8 +88,10 @@ private fun GameBoxButton(
 private fun GameBoardPreview() {
     val data = listOf(
         Box(CellPosition.TopStart, Cell.X), Box(CellPosition.TopCenter, Cell.O), Box(CellPosition.TopEnd, Cell.X),
-        Box(CellPosition.CenterStart, Cell.Empty), Box(CellPosition.Center, Cell.O), Box(CellPosition.CenterEnd, Cell.Empty),
-        Box(CellPosition.BottomStart, Cell.Empty), Box(CellPosition.BottomCenter, Cell.Empty), Box(CellPosition.BottomEnd, Cell.O),
+        Box(CellPosition.CenterStart, Cell.Empty), Box(CellPosition.Center, Cell.O), Box(
+            CellPosition.CenterEnd, Cell.Empty),
+        Box(CellPosition.BottomStart, Cell.Empty), Box(CellPosition.BottomCenter, Cell.Empty), Box(
+            CellPosition.BottomEnd, Cell.O),
     )
     TicTacToeTheme {
         Surface {

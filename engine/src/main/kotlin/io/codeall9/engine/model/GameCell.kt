@@ -1,4 +1,4 @@
-package io.codeall9.tictactoe.model
+package io.codeall9.engine.model
 
 sealed class Cell {
     data class Marked(val player: Player) : Cell()

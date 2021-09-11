@@ -1,7 +1,7 @@
-package io.codeall9.tictactoe
+package io.codeall9.engine
 
-import io.codeall9.tictactoe.model.*
-import io.codeall9.tictactoe.model.CellPosition.*
+import io.codeall9.engine.model.*
+import io.codeall9.engine.model.CellPosition.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -9,6 +9,8 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -28,11 +30,10 @@ internal class GameEngineTest {
                 .mapCatching { player -> player.mark(BottomCenter) }
                 .getOrElse { fail(it) }
 
-            val isOpponentTurn = when (player) {
-                Player.O -> result is PlayerXTurn
-                Player.X -> result is PlayerOTurn
+            when (player) {
+                Player.O -> assertIs<PlayerXTurn>(result)
+                Player.X -> assertIs<PlayerOTurn>(result)
             }
-            Assertions.assertTrue(isOpponentTurn) { "$result is not OpponentTurn" }
         }
 
         @Test
@@ -55,7 +56,7 @@ internal class GameEngineTest {
                 }
                 .mapCatching { it.awaitAll() }
 
-            Assertions.assertThrows(IllegalStateException::class.java) { playTwice.getOrThrow() }
+            assertThrows<IllegalStateException> { playTwice.getOrThrow() }
         }
     }
 
@@ -69,7 +70,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(TopEnd, TopStart, TopCenter)
             val playerXMoves = listOf(CenterEnd, BottomEnd)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.O)
+            val expected = GameWon(finalBoard, Player.O)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -77,11 +78,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -91,7 +92,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(Center, CenterStart, CenterEnd)
             val playerXMoves = listOf(TopCenter, BottomEnd)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.O)
+            val expected = GameWon(finalBoard, Player.O)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -99,11 +100,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -113,7 +114,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(BottomStart, BottomCenter, BottomEnd)
             val playerXMoves = listOf(Center, CenterStart)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.O)
+            val expected = GameWon(finalBoard, Player.O)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -121,11 +122,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -135,7 +136,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(Center, TopEnd, TopCenter)
             val playerXMoves = listOf(TopStart, BottomStart, CenterStart)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.X)
+            val expected = GameWon(finalBoard, Player.X)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -143,11 +144,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -157,7 +158,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(BottomEnd, TopStart, CenterStart)
             val playerXMoves = listOf(TopCenter, Center, BottomCenter)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.X)
+            val expected = GameWon(finalBoard, Player.X)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -165,11 +166,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -179,7 +180,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(Center, BottomStart, CenterStart)
             val playerXMoves = listOf(BottomEnd, TopEnd, CenterEnd)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.X)
+            val expected = GameWon(finalBoard, Player.X)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -187,11 +188,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -201,7 +202,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(Center, BottomEnd, TopStart)
             val playerXMoves = listOf(CenterStart, BottomStart)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.O)
+            val expected = GameWon(finalBoard, Player.O)
 
             val newGame = runCatching { newGame(Player.O) }
 
@@ -209,11 +210,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -223,7 +224,7 @@ internal class GameEngineTest {
             val playerOMoves = listOf(TopCenter, TopStart)
             val playerXMoves = listOf(Center, BottomStart, TopEnd)
             val finalBoard = Board(playerO = playerOMoves, playerX = playerXMoves)
-            val expected = GameOver(finalBoard, Player.X)
+            val expected = GameWon(finalBoard, Player.X)
 
             val newGame = runCatching { newGame(Player.X) }
 
@@ -231,11 +232,11 @@ internal class GameEngineTest {
                 .fold(newGame) { current, position ->
                     current.mapCatching { it.mark(position) }
                 }
-                .mapCatching { it as GameOver }
+                .mapCatching { it as GameWon }
                 .getOrElse { fail(it) }
                 .run {
-                    Assertions.assertEquals(expected.winner, winner)
-                    Assertions.assertEquals(expected.board, board)
+                    assertEquals(expected.winner, winner)
+                    assertEquals(expected.board, board)
                 }
         }
 
@@ -256,15 +257,15 @@ internal class GameEngineTest {
                 .getOrElse { fail(it) }
                 .run {
                     Board.AllPositions.forEach {
-                        Assertions.assertEquals(expected.board[it], board[it])
+                        assertEquals(expected.board[it], board[it])
                     }
                 }
         }
     }
 
-    private suspend fun MatchResult.mark(position: CellPosition): MatchResult {
+    private suspend fun GameState.mark(position: CellPosition): GameState {
         return when (this) {
-            is GameOver -> throw IllegalStateException("GameOver")
+            is GameWon -> throw IllegalStateException("GameOver")
             is GameTie -> throw IllegalStateException("GameTie")
             is PlayerOTurn -> requireNotNull(actions[position], { "$position not found" }).invoke()
             is PlayerXTurn -> requireNotNull(actions[position], { "$position not found" }).invoke()

@@ -1,25 +1,12 @@
-package io.codeall9.tictactoe.model
+package io.codeall9.engine.model
 
 @JvmInline
 value class Board constructor(private val grid: Map<CellPosition, Cell>) {
 
     constructor() : this(AllPositions.associateWith { Cell.Empty })
 
-    val topStart get() = grid[CellPosition.TopStart]!!
-    val topCenter get() = grid[CellPosition.TopCenter]!!
-    val topEnd get() = grid[CellPosition.TopEnd]!!
-    val centerStart get() = grid[CellPosition.CenterStart]!!
-    val center get() = grid[CellPosition.Center]!!
-    val centerEnd get() = grid[CellPosition.CenterEnd]!!
-    val bottomStart get() = grid[CellPosition.BottomStart]!!
-    val bottomCenter get() = grid[CellPosition.BottomCenter]!!
-    val bottomEnd get() = grid[CellPosition.BottomEnd]!!
-
     init {
         require(grid.size == 9) { "expected size: 9, actual size: ${grid.size}" }
-        for (position in AllPositions) {
-            requireNotNull(grid[position]) { "missing cell at $position" }
-        }
     }
 
     operator fun get(position: CellPosition): Cell {

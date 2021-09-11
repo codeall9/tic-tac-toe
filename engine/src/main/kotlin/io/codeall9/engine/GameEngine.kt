@@ -1,15 +1,13 @@
-package io.codeall9.tictactoe
+package io.codeall9.engine
 
-import io.codeall9.tictactoe.model.*
+import io.codeall9.engine.model.*
+import io.codeall9.engine.model.CellPosition.*
 import java.util.concurrent.atomic.AtomicBoolean
 
-typealias TicTacToeInitializer = suspend (Player) -> MatchResult
 
 private val Player.opponent : Player get() = if (this == Player.O) Player.X else Player.O
 
-val initLocalGame: TicTacToeInitializer = { initGame(it) }
-
-private fun initGame(first: Player = Player.O): MatchResult {
+internal fun initGame(first: Player = Player.O): GameState {
     val initState = HashMap<CellPosition, Cell>(9)
         .also {
             Board.AllPositions.associateWithTo(it) { Cell.Empty }
@@ -22,7 +20,7 @@ private fun initGame(first: Player = Player.O): MatchResult {
         .let(first.turnWith(emptyBoard))
 }
 
-private fun Player.turnWith(board: Board): (ValidRounds) -> MatchResult = { actions ->
+private fun Player.turnWith(board: Board): (ValidRounds) -> GameState = { actions ->
     if (this == Player.O) {
         PlayerOTurn(board, actions)
     } else {
@@ -45,7 +43,7 @@ private fun Player.getValidRounds(
                     markCell(position)
                     val winner = board.findWinnerOrNull()
                     if (winner != null) {
-                        return@escaping GameOver(board, winner)
+                        return@escaping GameWon(board, winner)
                     }
                     if (board.isAllMarked()) {
                         return@escaping GameTie(board)
@@ -67,18 +65,18 @@ private fun Board.findWinnerOrNull(): Player? {
 }
 
 private fun Board.findHorizontallyRowWinner(): Player? {
-    val marked1 = topStart.let { it as? Cell.Marked }
-    if ((marked1 != null) && (marked1 == topCenter) && (marked1 == topEnd)) {
+    val marked1 = this[TopStart].let { it as? Cell.Marked }
+    if ((marked1 != null) && (marked1 == this[TopCenter]) && (marked1 == this[TopEnd])) {
         return marked1.player
     }
 
-    val marked2 = centerStart.let { it as? Cell.Marked }
-    if ((marked2 != null) && (marked2 == center) && (marked2 == centerEnd)) {
+    val marked2 = this[CenterStart].let { it as? Cell.Marked }
+    if ((marked2 != null) && (marked2 == this[Center]) && (marked2 == this[CenterEnd])) {
         return marked2.player
     }
 
-    val marked3 = bottomStart.let { it as? Cell.Marked }
-    if ((marked3 != null) && (marked3 == bottomCenter) && (marked3 == bottomEnd)) {
+    val marked3 = this[BottomStart].let { it as? Cell.Marked }
+    if ((marked3 != null) && (marked3 == this[BottomCenter]) && (marked3 == this[BottomEnd])) {
         return marked3.player
     }
 
@@ -86,18 +84,18 @@ private fun Board.findHorizontallyRowWinner(): Player? {
 }
 
 private fun Board.findVerticallyRowWinner(): Player? {
-    val marked1 = topStart.let { it as? Cell.Marked }
-    if ((marked1 != null) && (marked1 == centerStart) && (marked1 == bottomStart)) {
+    val marked1 = this[TopStart].let { it as? Cell.Marked }
+    if ((marked1 != null) && (marked1 == this[CenterStart]) && (marked1 == this[BottomStart])) {
         return marked1.player
     }
 
-    val marked2 = topCenter.let { it as? Cell.Marked }
-    if ((marked2 != null) && (marked2 == center) && (marked2 == bottomCenter)) {
+    val marked2 = this[TopCenter].let { it as? Cell.Marked }
+    if ((marked2 != null) && (marked2 == this[Center]) && (marked2 == this[BottomCenter])) {
         return marked2.player
     }
 
-    val marked3 = topEnd.let { it as? Cell.Marked }
-    if ((marked3 != null) && (marked3 == centerEnd) && (marked3 == bottomEnd)) {
+    val marked3 = this[TopEnd].let { it as? Cell.Marked }
+    if ((marked3 != null) && (marked3 == this[CenterEnd]) && (marked3 == this[BottomEnd])) {
         return marked3.player
     }
 
@@ -105,13 +103,13 @@ private fun Board.findVerticallyRowWinner(): Player? {
 }
 
 private fun Board.findDiagonallyRowWinner(): Player? {
-    val marked1 = topStart.let { it as? Cell.Marked }
-    if ((marked1 != null) && (marked1 == center) && (marked1 == bottomEnd)) {
+    val marked1 = this[TopStart].let { it as? Cell.Marked }
+    if ((marked1 != null) && (marked1 == this[Center]) && (marked1 == this[BottomEnd])) {
         return marked1.player
     }
 
-    val marked2 = topEnd.let { it as? Cell.Marked }
-    if ((marked2 != null) && (marked2 == center) && (marked2 == bottomStart)) {
+    val marked2 = this[TopEnd].let { it as? Cell.Marked }
+    if ((marked2 != null) && (marked2 == this[Center]) && (marked2 == this[BottomStart])) {
         return marked2.player
     }
 

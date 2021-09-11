@@ -2,8 +2,11 @@ package io.codeall9.tictactoe.game
 
 import android.util.Log
 import androidx.lifecycle.*
-import io.codeall9.tictactoe.TicTacToeInitializer
-import io.codeall9.tictactoe.initLocalGame
+import io.codeall9.engine.TicTacToeInitializer
+import io.codeall9.engine.initLocalGame
+import io.codeall9.engine.model.Cell
+import io.codeall9.engine.model.CellPosition
+import io.codeall9.engine.model.Player
 import io.codeall9.tictactoe.model.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +33,7 @@ class GameViewModel(
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ): ViewModel() {
 
-    private val gameState = MutableLiveData<MatchResult>()
+    private val gameState = MutableLiveData<GameState>()
 
     val gridBoxes: LiveData<List<Box>> = gameState.map { result ->
         boxOrders.map { position ->  Box(position, result.board[position]) }
@@ -63,7 +66,7 @@ class GameViewModel(
     }
 
     @Throws(IllegalStateException::class, IllegalArgumentException::class)
-    private suspend fun MatchResult.onPlayerMove(position: CellPosition): MatchResult {
+    private suspend fun GameState.onPlayerMove(position: CellPosition): GameState {
         return when (this) {
             is PlayerOTurn -> {
                 requireNotNull(actions[position]) { "$position is not markable" }

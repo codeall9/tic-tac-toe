@@ -1,4 +1,4 @@
-package io.codeall9.tictactoe
+package io.codeall9.engine
 
 import java.util.concurrent.atomic.AtomicInteger
 
