@@ -4,29 +4,15 @@ import android.util.Log
 import androidx.lifecycle.*
 import io.codeall9.engine.TicTacToeInitializer
 import io.codeall9.engine.initLocalGame
-import io.codeall9.engine.model.Cell
-import io.codeall9.engine.model.CellPosition
-import io.codeall9.engine.model.Player
-import io.codeall9.tictactoe.model.*
+import io.codeall9.engine.markOrNull
+import io.codeall9.engine.model.*
+import io.codeall9.tictactoe.model.GameBox
+import io.codeall9.tictactoe.model.toBoxList
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
-
-private val boxOrders = listOf(
-    CellPosition.TopStart,
-    CellPosition.TopCenter,
-    CellPosition.TopEnd,
-    CellPosition.CenterStart,
-    CellPosition.Center,
-    CellPosition.CenterEnd,
-    CellPosition.BottomStart,
-    CellPosition.BottomCenter,
-    CellPosition.BottomEnd,
-)
-
-data class Box(val position: CellPosition, val cell: Cell)
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.onFailure
 
 class GameViewModel(
     private val initGame: TicTacToeInitializer = initLocalGame,
@@ -35,55 +21,46 @@ class GameViewModel(
 
     private val gameState = MutableLiveData<GameState>()
 
-    val gridBoxes: LiveData<List<Box>> = gameState.map { result ->
-        boxOrders.map { position ->  Box(position, result.board[position]) }
+    private val gameActor = viewModelScope.actor<PlayerAction>(
+        context = workerDispatcher,
+        capacity = Channel.RENDEZVOUS,
+    ) {
+        var current = initGame(Player.O).also { gameState.postValue(it) }
+        for (action in channel) {
+            val newState = when (action) {
+                is MarkPosition -> current.onPlayerMove(action.position)
+                is LaunchNewGame -> initGame(Player.O)
+            }
+            if (newState != null) {
+                current = newState.also { gameState.postValue(it) }
+            }
+            Log.d("TicTacToe", "gameActor: $action")
+        }
+    }
+
+    val gameBoxes: LiveData<List<GameBox>> = gameState.map { result ->
+        result.board.toBoxList()
     }
 
     val gameWinner: LiveData<Player?> = gameState
         .map { result ->
-            result.let { it as? GameOver }
+            result.let { it as? GameWon }
                 ?.winner
         }
         .distinctUntilChanged()
 
     val gameTie: LiveData<Boolean> = gameState.map { it is GameTie }
 
-    init {
-        viewModelScope.launchNewGame()
+    fun onNewAction(action: PlayerAction) {
+        gameActor.trySend(action)
+            .onFailure { Log.e("TicTacToe", "unable to send $action", it) }
     }
 
-    fun onPlayerMove(position: CellPosition) {
-        val current = gameState.value ?: return
-        viewModelScope.launch(workerDispatcher) {
-            current.runCatching { onPlayerMove(position) }
-                .onSuccess { newState -> gameState.postValue(newState) }
-                .onFailure { Log.e("TicTacToe", "action is rejected", it) }
-        }
-    }
-
-    fun restartGame() {
-        viewModelScope.launchNewGame()
-    }
-
-    @Throws(IllegalStateException::class, IllegalArgumentException::class)
-    private suspend fun GameState.onPlayerMove(position: CellPosition): GameState {
+    private suspend fun GameState.onPlayerMove(position: CellPosition): GameState? {
         return when (this) {
-            is PlayerOTurn -> {
-                requireNotNull(actions[position]) { "$position is not markable" }
-                    .run { invoke() }
-            }
-            is PlayerXTurn -> {
-                requireNotNull(actions[position]) { "$position is not markable" }
-                    .run { invoke() }
-            }
-            else -> this
+            is PlayerOTurn -> markOrNull(position)
+            is PlayerXTurn -> markOrNull(position)
+            else -> null
         }
-    }
-
-    private fun CoroutineScope.launchNewGame(
-        context: CoroutineContext = workerDispatcher,
-        first: Player = Player.O,
-    ) = launch(context) {
-        gameState.postValue(initGame(first))
     }
 }

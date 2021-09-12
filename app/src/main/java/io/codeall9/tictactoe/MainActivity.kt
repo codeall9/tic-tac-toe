@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.codeall9.tictactoe.components.TicTacToeScaffold
 import io.codeall9.tictactoe.game.GameViewModel
+import io.codeall9.tictactoe.game.LaunchNewGame
+import io.codeall9.tictactoe.game.MarkPosition
 import io.codeall9.tictactoe.game.TicTacToeScreen
 
 class MainActivity : AppCompatActivity() {
@@ -26,16 +28,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val dispatch = gameViewModel::onNewAction
         setContent {
             TicTacToeScaffold {
-                val gridBoxes by gameViewModel.gridBoxes.observeAsState(emptyList())
+                val gridBoxes by gameViewModel.gameBoxes.observeAsState(emptyList())
                 val gameTie by gameViewModel.gameTie.observeAsState(initial = false)
                 val gameWinner by gameViewModel.gameWinner.observeAsState()
 
                 TicTacToeScreen(
-                    boxes = gridBoxes,
-                    onPlayerMove = gameViewModel::onPlayerMove,
-                    onRestart = gameViewModel::restartGame,
+                    box = gridBoxes,
+                    onPlayerMove = { position -> dispatch(MarkPosition(position)) },
+                    onRestart = { dispatch(LaunchNewGame) },
                     modifier = Modifier
                         .padding(4.dp)
                         .fillMaxWidth()
@@ -43,9 +46,9 @@ class MainActivity : AppCompatActivity() {
                 )
                 val winner = gameWinner?.name
                 if (winner != null) {
-                    AlertWinner(winnerName = winner, onConfirm = gameViewModel::restartGame)
+                    AlertWinner(winnerName = winner, onConfirm = { dispatch(LaunchNewGame) })
                 } else if (gameTie) {
-                    AlertGameTie(onConfirm = gameViewModel::restartGame)
+                    AlertGameTie(onConfirm = { dispatch(LaunchNewGame) })
                 }
             }
         }

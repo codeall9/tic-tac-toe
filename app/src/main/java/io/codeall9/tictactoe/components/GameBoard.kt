@@ -10,14 +10,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.codeall9.engine.model.Cell
 import io.codeall9.engine.model.CellPosition
-import io.codeall9.tictactoe.game.Box
+import io.codeall9.tictactoe.model.GameBox
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 
 
 @Composable
 fun GameBoard(
     modifier: Modifier = Modifier,
-    boxes: List<Box>,
+    boxes: List<GameBox>,
     onCellClick: (CellPosition) -> Unit = { /* no-op */ },
 ) {
     val items = boxes.chunked(3)
@@ -39,7 +39,7 @@ fun GameBoard(
 @Composable
 private fun GameBoxRow(
     modifier: Modifier = Modifier,
-    items: List<Box>,
+    items: List<GameBox>,
     cellWith: Dp,
     onCellClick: (CellPosition) -> Unit = { /* no-op */ },
 ) {
@@ -87,11 +87,15 @@ private fun GameBoxButton(
 @Composable
 private fun GameBoardPreview() {
     val data = listOf(
-        Box(CellPosition.TopStart, Cell.X), Box(CellPosition.TopCenter, Cell.O), Box(CellPosition.TopEnd, Cell.X),
-        Box(CellPosition.CenterStart, Cell.Empty), Box(CellPosition.Center, Cell.O), Box(
-            CellPosition.CenterEnd, Cell.Empty),
-        Box(CellPosition.BottomStart, Cell.Empty), Box(CellPosition.BottomCenter, Cell.Empty), Box(
-            CellPosition.BottomEnd, Cell.O),
+        GameBox(CellPosition.TopStart, Cell.X),
+        GameBox(CellPosition.TopCenter, Cell.O),
+        GameBox(CellPosition.TopEnd, Cell.X),
+        GameBox(CellPosition.CenterStart, Cell.Empty),
+        GameBox(CellPosition.Center, Cell.O),
+        GameBox(CellPosition.CenterEnd, Cell.Empty),
+        GameBox(CellPosition.BottomStart, Cell.Empty),
+        GameBox(CellPosition.BottomCenter, Cell.Empty),
+        GameBox(CellPosition.BottomEnd, Cell.O),
     )
     TicTacToeTheme {
         Surface {

@@ -17,12 +17,13 @@ import io.codeall9.engine.model.Cell
 import io.codeall9.engine.model.CellPosition
 import io.codeall9.tictactoe.R
 import io.codeall9.tictactoe.components.GameBoard
+import io.codeall9.tictactoe.model.GameBox
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 
 @Composable
 fun TicTacToeScreen(
     modifier: Modifier = Modifier,
-    boxes: List<Box>,
+    box: List<GameBox>,
     onPlayerMove: (CellPosition) -> Unit = { /* no-op */ },
     onRestart: () -> Unit = { /* no-op */ },
 ) {
@@ -32,7 +33,7 @@ fun TicTacToeScreen(
         modifier = modifier,
     ) {
         GameBoard(
-            boxes = boxes,
+            boxes = box,
             onCellClick = onPlayerMove
         )
         Button(
@@ -55,13 +56,16 @@ private fun TicTacToeLightPreview() {
     TicTacToeTheme(false) {
         Surface {
             TicTacToeScreen(
-                boxes = listOf(
-                    Box(CellPosition.TopStart, Cell.X), Box(CellPosition.TopCenter, Cell.Empty), Box(
-                        CellPosition.TopEnd, Cell.X),
-                    Box(CellPosition.CenterStart, Cell.Empty), Box(CellPosition.Center, Cell.O), Box(
-                        CellPosition.CenterEnd, Cell.Empty),
-                    Box(CellPosition.BottomStart, Cell.O), Box(CellPosition.BottomCenter, Cell.Empty), Box(
-                        CellPosition.BottomEnd, Cell.Empty),
+                box = listOf(
+                    GameBox(CellPosition.TopStart, Cell.X),
+                    GameBox(CellPosition.TopCenter, Cell.Empty),
+                    GameBox(CellPosition.TopEnd, Cell.X),
+                    GameBox(CellPosition.CenterStart, Cell.Empty),
+                    GameBox(CellPosition.Center, Cell.O),
+                    GameBox(CellPosition.CenterEnd, Cell.Empty),
+                    GameBox(CellPosition.BottomStart, Cell.O),
+                    GameBox(CellPosition.BottomCenter, Cell.Empty),
+                    GameBox(CellPosition.BottomEnd, Cell.Empty),
                 ),
             )
         }
@@ -74,13 +78,16 @@ private fun TicTacToeDarkPreview() {
     TicTacToeTheme(true) {
         Surface {
             TicTacToeScreen(
-                boxes = listOf(
-                    Box(CellPosition.TopStart, Cell.Empty), Box(CellPosition.TopCenter, Cell.O), Box(
-                        CellPosition.TopEnd, Cell.X),
-                    Box(CellPosition.CenterStart, Cell.O), Box(CellPosition.Center, Cell.O), Box(
-                        CellPosition.CenterEnd, Cell.X),
-                    Box(CellPosition.BottomStart, Cell.Empty), Box(CellPosition.BottomCenter, Cell.X), Box(
-                        CellPosition.BottomEnd, Cell.O),
+                box = listOf(
+                    GameBox(CellPosition.TopStart, Cell.Empty),
+                    GameBox(CellPosition.TopCenter, Cell.O),
+                    GameBox(CellPosition.TopEnd, Cell.X),
+                    GameBox(CellPosition.CenterStart, Cell.O),
+                    GameBox(CellPosition.Center, Cell.O),
+                    GameBox(CellPosition.CenterEnd, Cell.X),
+                    GameBox(CellPosition.BottomStart, Cell.Empty),
+                    GameBox(CellPosition.BottomCenter, Cell.X),
+                    GameBox(CellPosition.BottomEnd, Cell.O),
                 ),
             )
         }
