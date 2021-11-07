@@ -1,3 +1,4 @@
 rootProject.name = "TicTacToe"
 include ':app'
 include ':engine'
+include ':history'
