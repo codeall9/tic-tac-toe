@@ -16,13 +16,13 @@ import kotlinx.coroutines.channels.onFailure
 
 class GameViewModel(
     private val initGame: TicTacToeInitializer = initLocalGame,
-    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
-): ViewModel() {
+    private val worker: CoroutineDispatcher = Dispatchers.Default,
+) : ViewModel() {
 
     private val gameState = MutableLiveData<GameState>()
 
     private val gameActor = viewModelScope.actor<PlayerAction>(
-        context = workerDispatcher,
+        context = worker,
         capacity = Channel.RENDEZVOUS,
     ) {
         var current = initGame(Player.O).also { gameState.postValue(it) }
@@ -42,16 +42,17 @@ class GameViewModel(
         result.board.toBoxList()
     }
 
-    val gameWinner: LiveData<Player?> = gameState
-        .map { result ->
-            result.let { it as? GameWon }
-                ?.winner
+    val gameStatus: LiveData<GameStatus> = gameState
+        .map {
+            when (it) {
+                is GameTie -> GameStatus.IsDraw
+                is GameWon -> GameStatus.PlayerWin(it.winner)
+                is PlayerOTurn -> GameStatus.Ongoing
+                is PlayerXTurn -> GameStatus.Ongoing
+            }
         }
-        .distinctUntilChanged()
 
-    val gameTie: LiveData<Boolean> = gameState.map { it is GameTie }
-
-    fun onNewAction(action: PlayerAction) {
+    fun onActionDispatched(action: PlayerAction) {
         gameActor.trySend(action)
             .onFailure { Log.e("TicTacToe", "unable to send $action", it) }
     }

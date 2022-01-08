@@ -1,18 +1,19 @@
 package io.codeall9.tictactoe.game
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.codeall9.engine.model.Cell
 import io.codeall9.engine.model.CellPosition
 import io.codeall9.tictactoe.R
@@ -23,7 +24,26 @@ import io.codeall9.tictactoe.theme.TicTacToeTheme
 @Composable
 fun TicTacToeScreen(
     modifier: Modifier = Modifier,
+    viewModel: GameViewModel = viewModel(GameViewModel::class.java),
+    onAction: (PlayerAction) -> Unit = viewModel::onActionDispatched,
+) {
+    val gridBoxes by viewModel.gameBoxes.observeAsState(emptyList())
+    val status by viewModel.gameStatus.observeAsState(initial = GameStatus.Ongoing)
+
+    TicTacToeScreen(
+        box = gridBoxes,
+        status = status,
+        onPlayerMove = { position -> onAction(MarkPosition(position)) },
+        onRestart = { onAction(LaunchNewGame) },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun TicTacToeScreen(
+    modifier: Modifier = Modifier,
     box: List<GameBox>,
+    status: GameStatus,
     onPlayerMove: (CellPosition) -> Unit = { /* no-op */ },
     onRestart: () -> Unit = { /* no-op */ },
 ) {
@@ -48,9 +68,68 @@ fun TicTacToeScreen(
             Text(text = stringResource(id = R.string.button_restart))
         }
     }
+    when (status) {
+        is GameStatus.IsDraw -> {
+            AlertGameTie(onConfirm = { onRestart() })
+        }
+        is GameStatus.PlayerWin -> {
+            AlertWinner(winnerName = status.winner.name, onConfirm = { onRestart() })
+        }
+        else -> {/* no-op */}
+    }
 }
 
-@Preview("TicTacToe Light")
+@Composable
+private fun AlertWinner(
+    modifier: Modifier = Modifier,
+    winnerName: String,
+    onDismissRequest: () -> Unit = { /* no-op */ },
+    onConfirm: () -> Unit = { /* no-op */ },
+) {
+    AlertGameResult(
+        text = { Text(text = stringResource(id = R.string.game_winner, winnerName)) },
+        onConfirm = onConfirm,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun AlertGameTie(
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit = { /* no-op */ },
+    onConfirm: () -> Unit = { /* no-op */ },
+) {
+    AlertGameResult(
+        text = { Text(text = stringResource(id = R.string.game_tie)) },
+        onConfirm = onConfirm,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun AlertGameResult(
+    modifier: Modifier = Modifier,
+    text: @Composable (() -> Unit)? = null,
+    title: @Composable (() -> Unit)? = { Text(text = stringResource(id = R.string.game_over)) },
+    onConfirm: () -> Unit = { /* no-op */ },
+    onDismissRequest: () -> Unit = { /* no-op */ },
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = title,
+        text = text,
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text(text = stringResource(id = android.R.string.ok))
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Preview("TicTacToe Light", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 private fun TicTacToeLightPreview() {
     TicTacToeTheme(false) {
@@ -67,15 +146,16 @@ private fun TicTacToeLightPreview() {
                     GameBox(CellPosition.BottomCenter, Cell.Empty),
                     GameBox(CellPosition.BottomEnd, Cell.Empty),
                 ),
+                status = GameStatus.Ongoing,
             )
         }
     }
 }
 
-@Preview("TicTacToe Dark")
+@Preview("TicTacToe Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun TicTacToeDarkPreview() {
-    TicTacToeTheme(true) {
+    TicTacToeTheme {
         Surface {
             TicTacToeScreen(
                 box = listOf(
@@ -89,6 +169,7 @@ private fun TicTacToeDarkPreview() {
                     GameBox(CellPosition.BottomCenter, Cell.X),
                     GameBox(CellPosition.BottomEnd, Cell.O),
                 ),
+                status = GameStatus.Ongoing,
             )
         }
     }
