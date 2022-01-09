@@ -9,12 +9,11 @@ import io.codeall9.engine.model.Player
 import io.codeall9.history.room.InstantConverter
 import io.codeall9.history.services.buildInMemoryDb
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.time.Instant
@@ -26,8 +25,8 @@ internal class GameWinnerDaoTest {
 
     private lateinit var db: HistoryDatabase
     private lateinit var dao: GameWinnerDao
-    private val testDispatcher = TestCoroutineDispatcher()
-    private val testScope = TestCoroutineScope(testDispatcher + Job())
+    private val testScope = TestScope()
+    private val testDispatcher = StandardTestDispatcher(testScope.testScheduler, name = "IO dispatcher")
 
     @BeforeTest
     fun setUp() {
@@ -43,11 +42,10 @@ internal class GameWinnerDaoTest {
     @Throws(IOException::class)
     fun tearDown() {
         db.close()
-//        testScope.cleanupTestCoroutines()
     }
 
     @Test
-    fun entityIsEqualToOriginal() = testScope.runBlockingTest {
+    fun entityIsEqualToOriginal() = testScope.runTest {
         val original = GameWinner("51", Player.X)
 
         dao.insert(original)
@@ -57,7 +55,7 @@ internal class GameWinnerDaoTest {
     }
 
     @Test
-    fun maximumListSizeIs5() = testScope.runBlockingTest {
+    fun maximumListSizeIs5() = testScope.runTest {
         val total = 5
 
         assertThat(dao.getRecentWinners(total).first()).isEmpty()
@@ -77,7 +75,7 @@ internal class GameWinnerDaoTest {
     }
 
     @Test
-    fun resultIsContainsTheOriginalItems() = testScope.runBlockingTest {
+    fun resultIsContainsTheOriginalItems() = testScope.runTest {
         val original = arrayOf(
             GameWinner("101", null),
             GameWinner("102", Player.O),
@@ -93,7 +91,7 @@ internal class GameWinnerDaoTest {
     }
 
     @Test
-    fun listIsSortedByTimeWithDecs() = testScope.runBlockingTest {
+    fun listIsSortedByTimeWithDecs() = testScope.runTest {
         val now = Instant.now()
         val comparator = Comparator<GameWinner> { first, second ->
             second.createdAt.compareTo(first.createdAt)
@@ -112,7 +110,7 @@ internal class GameWinnerDaoTest {
     }
 
     @Test
-    fun failToInsertDuplicatedId() = testScope.runBlockingTest {
+    fun failToInsertDuplicatedId() = testScope.runTest {
         dao.insert(GameWinner("50", Player.O))
 
         assertFailsWith<SQLiteConstraintException> {

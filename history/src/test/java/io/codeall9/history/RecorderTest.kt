@@ -4,7 +4,7 @@ import io.codeall9.engine.initLocalGame
 import io.codeall9.engine.model.*
 import io.codeall9.engine.model.CellPosition.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
@@ -16,7 +16,7 @@ internal class RecorderTest {
 
     @Test
     @DisplayName("The id in [GameLog] and [PlayedGame] are the same")
-    fun allGameIdIsTheSame() = runBlockingTest {
+    fun allGameIdIsTheSame() = runTest {
         val ids = mutableListOf<GameId>()
 
         val newGame = recordingTicTacToe(
@@ -35,7 +35,7 @@ internal class RecorderTest {
 
     @Test
     @DisplayName("Every new game has unique `gameId`")
-    fun allGameIdAfterRestartIsNotEqual() = runBlockingTest {
+    fun allGameIdAfterRestartIsNotEqual() = runTest {
         val list = mutableListOf<GameId>()
 
         val newGame = recordingTicTacToe(
@@ -56,7 +56,7 @@ internal class RecorderTest {
 
     @Test
     @DisplayName("Game can be replayed by `gameLogs`")
-    fun replayedStateAreEqualToOriginal() = runBlockingTest {
+    fun replayedStateAreEqualToOriginal() = runTest {
         val moves = listOf(
             TopCenter,
             Center,
@@ -90,7 +90,7 @@ internal class RecorderTest {
 
     @Test
     @DisplayName("Game result is recorded in [PlayedGame]")
-    fun winnerIsEqualToOriginal() = runBlockingTest {
+    fun winnerIsEqualToOriginal() = runTest {
         var winner: Player? = null
 
         val newGame = recordingTicTacToe(
@@ -113,7 +113,7 @@ internal class RecorderTest {
 
     @Test
     @DisplayName("`onResult` is invoked after match over")
-    fun invokeTimeIsEqualTo2() = runBlockingTest {
+    fun invokeTimeIsEqualTo2() = runTest {
         var count = 0
 
         val newGame = recordingTicTacToe(

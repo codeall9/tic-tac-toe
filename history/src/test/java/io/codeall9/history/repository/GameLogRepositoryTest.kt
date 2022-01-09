@@ -11,7 +11,7 @@ import io.codeall9.history.persistence.GameEventDao
 import io.codeall9.history.transform.GameEventToGameLog
 import io.codeall9.history.transform.toGameLog
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
@@ -23,7 +23,7 @@ internal class GameLogRepositoryTest {
 
     @Test
     @DisplayName("fallback to empty list if an exception is thrown from `Dao`")
-    fun handleDaoFailure() = runBlockingTest {
+    fun handleDaoFailure() = runTest {
         val dao: GameEventDao = object : MockedGameEventDao() {
             override suspend fun getGameHistory(gameId: String): List<GameEvent> {
                 error("mock failure")
@@ -40,7 +40,7 @@ internal class GameLogRepositoryTest {
 
     @Test
     @DisplayName("Ignore element that is fail to transform")
-    fun handleTransformFailure() = runBlockingTest {
+    fun handleTransformFailure() = runTest {
         val dao: GameEventDao = object : MockedGameEventDao() {  }
         val toDomain: GameEventToGameLog = {
             if (eventId % 2 == 0L) error("mock failure") else toGameLog()

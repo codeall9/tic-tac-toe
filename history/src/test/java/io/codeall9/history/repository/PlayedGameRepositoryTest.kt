@@ -11,7 +11,7 @@ import io.codeall9.history.transform.toPlayedGame
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
@@ -23,7 +23,7 @@ internal class PlayedGameRepositoryTest {
 
     @Test
     @DisplayName("fallback to empty list if an exception is thrown from `Dao`")
-    fun handleDaoFailure() = runBlockingTest {
+    fun handleDaoFailure() = runTest {
         val dao = object : MockedGameWinnerDao() {
             override fun getRecentWinners(total: Int): Flow<List<GameWinner>> {
                 error("mock failure")
@@ -41,7 +41,7 @@ internal class PlayedGameRepositoryTest {
 
     @Test
     @DisplayName("Ignore element that is fail to transform")
-    fun handleTransformFailure() = runBlockingTest {
+    fun handleTransformFailure() = runTest {
         val dao = object : MockedGameWinnerDao() {}
 
         val failedIds = listOf("103", "105", "107")

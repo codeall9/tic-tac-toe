@@ -4,7 +4,6 @@ import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import java.time.Instant
 
-// TODO remove this after upgrade room to 2.4.0 above
 @ProvidedTypeConverter
 internal class InstantConverter(
     private val toInstant: Long.() -> Instant = { Instant.ofEpochMilli(this) },
