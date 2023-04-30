@@ -21,11 +21,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.codeall9.engine.model.Player
-import io.codeall9.history.GameTied
-import io.codeall9.history.PlayedGame
-import io.codeall9.history.PlayerWon
-import io.codeall9.history.toGameId
+import io.codeall9.core.history.event.GameResult
+import io.codeall9.core.history.event.GameTied
+import io.codeall9.core.history.event.PlayerWon
+import io.codeall9.core.history.model.HistoryId
+import io.codeall9.tictactoe.core.engine.model.Player
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 import java.util.*
 
@@ -33,7 +33,7 @@ import java.util.*
 fun PlayedListScreen(
     modifier: Modifier = Modifier,
     viewModel: RecentGameViewModel = viewModel(RecentGameViewModel::class.java),
-    navDetail: (PlayedGame) -> Unit = { }
+    navDetail: (GameResult) -> Unit = { }
 ) {
     val recent by viewModel.recentList.observeAsState(initial = emptyList())
     PlayedListScreen(
@@ -46,8 +46,8 @@ fun PlayedListScreen(
 @Composable
 fun PlayedListScreen(
     modifier: Modifier = Modifier,
-    games: List<PlayedGame>,
-    navigateToDetail: (PlayedGame) -> Unit = { }
+    games: List<GameResult>,
+    navigateToDetail: (GameResult) -> Unit = { }
 ) {
     val lazyListState = rememberLazyListState()
     LaunchedEffect(key1 = games, block = {
@@ -63,8 +63,8 @@ fun PlayedListScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private inline fun GameResultCard(
-    playedGame: PlayedGame,
-    crossinline navigateToDetail: (PlayedGame) -> Unit
+    playedGame: GameResult,
+    crossinline navigateToDetail: (GameResult) -> Unit
 ) {
     Card(
         onClick = { navigateToDetail(playedGame) },
@@ -135,12 +135,12 @@ private fun PlayedListLightPreview() {
         PlayedListScreen(
             Modifier.fillMaxSize(),
             listOf(
-                GameTied(UUID.randomUUID().toGameId()),
-                PlayerWon(UUID.randomUUID().toGameId(), Player.O),
-                PlayerWon(UUID.randomUUID().toGameId(), Player.X),
-                PlayerWon(UUID.randomUUID().toGameId(), Player.X),
-                GameTied(UUID.randomUUID().toGameId()),
-                PlayerWon(UUID.randomUUID().toGameId(), Player.O),
+                GameTied(HistoryId.of(UUID.randomUUID())),
+                PlayerWon(HistoryId.of(UUID.randomUUID()), Player.O),
+                PlayerWon(HistoryId.of(UUID.randomUUID()), Player.X),
+                PlayerWon(HistoryId.of(UUID.randomUUID()), Player.X),
+                GameTied(HistoryId.of(UUID.randomUUID())),
+                PlayerWon(HistoryId.of(UUID.randomUUID()), Player.O),
             ),
         )
     }
@@ -153,9 +153,9 @@ private fun PlayedListPreview() {
         PlayedListScreen(
             Modifier.fillMaxSize(),
             listOf(
-                PlayerWon(UUID.randomUUID().toGameId(), Player.X),
-                GameTied(UUID.randomUUID().toGameId()),
-                PlayerWon(UUID.randomUUID().toGameId(), Player.O),
+                PlayerWon(HistoryId.of(UUID.randomUUID()), Player.X),
+                GameTied(HistoryId.of(UUID.randomUUID())),
+                PlayerWon(HistoryId.of(UUID.randomUUID()), Player.O),
             ),
         )
     }

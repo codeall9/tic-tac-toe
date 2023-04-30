@@ -1,8 +1,8 @@
 package io.codeall9.tictactoe.model
 
-import io.codeall9.engine.model.Board
-import io.codeall9.engine.model.Cell
-import io.codeall9.engine.model.CellPosition
+import io.codeall9.tictactoe.core.engine.model.Board
+import io.codeall9.tictactoe.core.engine.model.Cell
+import io.codeall9.tictactoe.core.engine.model.CellPosition
 
 private val CellOrders = listOf(
     CellPosition.TopStart,

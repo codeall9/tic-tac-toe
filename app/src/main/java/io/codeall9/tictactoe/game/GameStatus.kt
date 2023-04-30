@@ -1,6 +1,6 @@
 package io.codeall9.tictactoe.game
 
-import io.codeall9.engine.model.Player
+import io.codeall9.tictactoe.core.engine.model.Player
 
 sealed class GameStatus {
     object Ongoing : GameStatus()

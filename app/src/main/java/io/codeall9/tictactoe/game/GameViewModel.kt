@@ -1,11 +1,21 @@
 package io.codeall9.tictactoe.game
 
 import android.util.Log
-import androidx.lifecycle.*
-import io.codeall9.engine.TicTacToeInitializer
-import io.codeall9.engine.initLocalGame
-import io.codeall9.engine.markOrNull
-import io.codeall9.engine.model.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
+import io.codeall9.tictactoe.core.engine.LaunchTicTacToe
+import io.codeall9.tictactoe.core.engine.initLocalGame
+import io.codeall9.tictactoe.core.engine.model.CellPosition
+import io.codeall9.tictactoe.core.engine.model.GameState
+import io.codeall9.tictactoe.core.engine.model.GameTie
+import io.codeall9.tictactoe.core.engine.model.GameWon
+import io.codeall9.tictactoe.core.engine.model.Player
+import io.codeall9.tictactoe.core.engine.model.PlayerOTurn
+import io.codeall9.tictactoe.core.engine.model.PlayerXTurn
+import io.codeall9.tictactoe.core.engine.model.markOrNull
 import io.codeall9.tictactoe.model.GameBox
 import io.codeall9.tictactoe.model.toBoxList
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,7 +25,7 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.onFailure
 
 class GameViewModel(
-    private val initGame: TicTacToeInitializer = initLocalGame,
+    private val initGame: LaunchTicTacToe = initLocalGame,
     private val worker: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 

@@ -1,6 +1,6 @@
 package io.codeall9.tictactoe.game
 
-import io.codeall9.engine.model.CellPosition
+import io.codeall9.tictactoe.core.engine.model.CellPosition
 
 sealed class PlayerAction
 
