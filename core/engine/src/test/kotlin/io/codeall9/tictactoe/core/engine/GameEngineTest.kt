@@ -10,7 +10,6 @@ import io.codeall9.tictactoe.core.engine.model.GameWon
 import io.codeall9.tictactoe.core.engine.model.Player
 import io.codeall9.tictactoe.core.engine.model.PlayerOTurn
 import io.codeall9.tictactoe.core.engine.model.PlayerXTurn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -21,7 +20,6 @@ import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class GameEngineTest {
 
@@ -281,7 +279,6 @@ internal class GameEngineTest {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private fun buildSteps(
         firstPos: List<CellPosition>,
         secondPos: List<CellPosition>,
@@ -307,7 +304,6 @@ internal class GameEngineTest {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private operator fun Board.Companion.invoke(
         playerO: List<CellPosition>,
         playerX: List<CellPosition>,
