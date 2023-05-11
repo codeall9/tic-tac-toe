@@ -19,4 +19,5 @@ dependencyResolutionManagement {
 include(":app")
 include(":core:engine")
 include(":core:history")
+include(":core:history-test")
 include(":infra:history")

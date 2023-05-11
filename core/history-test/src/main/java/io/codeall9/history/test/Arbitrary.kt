@@ -1,5 +1,6 @@
-package io.codeall9.core.history.util
+package io.codeall9.history.test
 
+import io.codeall9.core.history.event.GameOver
 import io.codeall9.core.history.event.GameStarted
 import io.codeall9.core.history.event.GameTied
 import io.codeall9.core.history.event.GameTransition
@@ -16,13 +17,14 @@ import io.codeall9.tictactoe.core.engine.model.Player
 import io.codeall9.tictactoe.core.engine.model.PlayerOTurn
 import io.codeall9.tictactoe.core.engine.model.PlayerXTurn
 import io.codeall9.tictactoe.core.engine.model.ValidRounds
+import java.time.Instant
 import java.util.UUID
 
 private val cells = listOf(Cell.O, Cell.X, Cell.Empty)
-internal const val NUM_TESTS = 64
-internal const val NUM_LARGE_TESTS = 16
+public const val NUM_TESTS: Int = 64
+public const val NUM_LARGE_TESTS: Int = 16
 
-internal fun randomBoard(randomCells: List<Cell> = List(9) { cells.random() }): Board {
+public fun randomBoard(randomCells: List<Cell> = List(9) { cells.random() }): Board {
     return Board(
         topStart = randomCells[0],
         topCenter = randomCells[1],
@@ -36,7 +38,7 @@ internal fun randomBoard(randomCells: List<Cell> = List(9) { cells.random() }): 
     )
 }
 
-internal fun randomGameEvents(): List<GameTransition> {
+public fun randomGameSequence(): List<GameTransition> {
     val historyId = HistoryId.of(UUID.randomUUID())
     // generate a random number of valid events
     val eventCount = (5..8).random()
@@ -49,15 +51,18 @@ internal fun randomGameEvents(): List<GameTransition> {
             add(MovePlayed(historyId, player, position))
             player = if (player == Player.X) Player.O else Player.X
         }
-        listOf(GameTied(historyId), PlayerWon(historyId, Player.X), PlayerWon(historyId, Player.O))
-            .random()
-            .let { add(it) }
+        randomGameResult(historyId).also { add(it) }
     }
 
     return events
 }
 
-internal fun randomGameteState(round: Int = 1): GameState {
+public fun randomGameResult(historyId: HistoryId = HistoryId.of(UUID.randomUUID())): GameOver {
+    val playerWon = PlayerWon(historyId, Player.values().random())
+    return listOf(GameTied(historyId), playerWon).random()
+}
+
+public fun randomGameteState(round: Int = 1): GameState {
     val board = randomBoard()
     val endRound = (5..9).random()
     return if (round >= endRound) {
@@ -73,7 +78,7 @@ internal fun randomGameteState(round: Int = 1): GameState {
     }
 }
 
-internal fun randomValidRounds(round: Int = 1): ValidRounds {
+public fun randomValidRounds(round: Int = 1): ValidRounds {
     return mutableListOf(Cell.O, Cell.X, Cell.Empty, Cell.O, Cell.X, Cell.Empty, Cell.O, Cell.X, Cell.Empty)
         .apply { shuffle() }
         .let { randomBoard(it) }
@@ -81,4 +86,14 @@ internal fun randomValidRounds(round: Int = 1): ValidRounds {
         .filter { it.value == Cell.Empty }
         .map { it.key to suspend { randomGameteState(round) } }
         .associate { it }
+}
+
+public fun randomInstant(): Instant {
+    return Instant.ofEpochMilli(randomEpochMilli())
+}
+
+public fun randomEpochMilli(): Long {
+    val maxMillis = Long.MAX_VALUE
+    val minMillis = Long.MIN_VALUE
+    return (minMillis..maxMillis).random()
 }

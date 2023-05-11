@@ -8,8 +8,5 @@ version = "1.0.0-RC"
 
 dependencies {
     implementation(project(":core:engine"))
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation(project(":core:history-test"))
+    implementation(project(":core:history"))
 }

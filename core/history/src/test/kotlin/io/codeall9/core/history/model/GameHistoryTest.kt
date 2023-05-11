@@ -3,9 +3,9 @@ package io.codeall9.core.history.model
 import io.codeall9.core.history.event.GameStarted
 import io.codeall9.core.history.event.MovePlayed
 import io.codeall9.core.history.event.PlayerWon
-import io.codeall9.core.history.util.NUM_TESTS
-import io.codeall9.core.history.util.randomBoard
-import io.codeall9.core.history.util.randomGameEvents
+import io.codeall9.history.test.NUM_TESTS
+import io.codeall9.history.test.randomBoard
+import io.codeall9.history.test.randomGameSequence
 import io.codeall9.tictactoe.core.engine.model.CellPosition
 import io.codeall9.tictactoe.core.engine.model.Player
 import org.junit.jupiter.api.DisplayName
@@ -26,7 +26,7 @@ internal class GameHistoryTest {
     @RepeatedTest(NUM_TESTS)
     @DisplayName("replay() only contains valid game events")
     fun replayGameTransitions() {
-        val events = randomGameEvents()
+        val events = randomGameSequence()
         val gameHistory = GameHistory.replayOrNull(events)
 
         assertNotNull(gameHistory, "replayOrNull should not return null, input: $events")

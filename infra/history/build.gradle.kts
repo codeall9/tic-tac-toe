@@ -18,6 +18,10 @@ dependencies {
     implementation(project(":core:engine"))
     api(project(":core:history"))
 
+    testImplementation(project(":core:history-test"))
+    androidTestImplementation(project(":core:history-test"))
+
     testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestRuntimeOnly(libs.androidx.test.espresso.core)
 }

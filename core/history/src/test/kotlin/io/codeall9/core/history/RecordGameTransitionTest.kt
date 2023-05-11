@@ -1,9 +1,9 @@
 package io.codeall9.core.history
 
 import io.codeall9.core.history.event.GameTransition
-import io.codeall9.core.history.util.NUM_LARGE_TESTS
-import io.codeall9.core.history.util.NUM_TESTS
 import io.codeall9.core.history.util.initFakeGame
+import io.codeall9.history.test.NUM_LARGE_TESTS
+import io.codeall9.history.test.NUM_TESTS
 import io.codeall9.tictactoe.core.engine.LaunchTicTacToe
 import io.codeall9.tictactoe.core.engine.model.GameState
 import io.codeall9.tictactoe.core.engine.model.GameTie

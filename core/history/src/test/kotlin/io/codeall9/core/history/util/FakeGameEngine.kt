@@ -1,5 +1,7 @@
 package io.codeall9.core.history.util
 
+import io.codeall9.history.test.randomBoard
+import io.codeall9.history.test.randomValidRounds
 import io.codeall9.tictactoe.core.engine.model.GameState
 import io.codeall9.tictactoe.core.engine.model.Player
 import io.codeall9.tictactoe.core.engine.model.PlayerOTurn
