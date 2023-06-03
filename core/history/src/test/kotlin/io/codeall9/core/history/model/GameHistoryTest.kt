@@ -30,7 +30,7 @@ internal class GameHistoryTest {
         val gameHistory = GameHistory.replayOrNull(events)
 
         assertNotNull(gameHistory, "replayOrNull should not return null, input: $events")
-        assertEquals(events.size - 2, gameHistory.totalRounds)
+        assertEquals(events.size - 1, gameHistory.totalRounds)
     }
 
     @Test

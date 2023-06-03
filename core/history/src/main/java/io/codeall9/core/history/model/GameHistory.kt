@@ -22,7 +22,7 @@ public value class GameHistory internal constructor(
 ): Iterable<Board> {
 
     /** Returns the total number of rounds played in the game */
-    public val totalRounds: Int get() = snapshots.size - 1
+    public val totalRounds: Int get() = snapshots.size
 
     override fun iterator(): Iterator<Board> {
         return snapshots.asSequence()

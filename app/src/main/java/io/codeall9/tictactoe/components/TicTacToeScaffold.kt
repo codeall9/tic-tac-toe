@@ -17,18 +17,18 @@ import kotlinx.coroutines.launch
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun TicTacToeScaffold(
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
     playedListContent: @Composable ColumnScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
     val navPlayedList: () -> Unit = {
-        scope.launch { state.show() }
+        scope.launch { bottomSheetState.show() }
     }
     TicTacToeTheme {
         ModalBottomSheetLayout(
             sheetContent = { playedListContent() },
-            sheetState = state,
+            sheetState = bottomSheetState,
         ) {
             Scaffold(
                 topBar = { TicTacToeAppbar(navPlayedList = navPlayedList) },
@@ -75,6 +75,7 @@ private fun TicTacToeAppbar(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 private fun ScaffoldPreview() {

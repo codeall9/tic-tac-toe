@@ -34,7 +34,7 @@ fun GameBoard(
     val items = boxes.chunked(3)
     BoxWithConstraints(modifier = modifier) {
         val cellWith = maxWidth / 3
-        Column(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             for (chunkedBoxes in items) {
                 GameBoxRow(
                     items = chunkedBoxes,
@@ -114,6 +114,7 @@ private fun GameBoardPreview() {
                 boxes = data,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
                     .wrapContentHeight()
             )
         }
