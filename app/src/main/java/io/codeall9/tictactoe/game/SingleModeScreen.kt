@@ -31,7 +31,7 @@ import io.codeall9.tictactoe.model.GameBox
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 
 @Composable
-fun TicTacToeScreen(
+fun SingleModeScreen(
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = viewModel(GameViewModel::class.java),
     onAction: (PlayerAction) -> Unit = viewModel::onActionDispatched,
@@ -39,7 +39,7 @@ fun TicTacToeScreen(
     val gridBoxes by viewModel.gameBoxes.observeAsState(emptyList())
     val status by viewModel.gameStatus.observeAsState(initial = GameStatus.Ongoing)
 
-    TicTacToeScreen(
+    SingleModeScreen(
         box = gridBoxes,
         status = status,
         onPlayerMove = { position -> onAction(MarkPosition(position)) },
@@ -49,7 +49,7 @@ fun TicTacToeScreen(
 }
 
 @Composable
-fun TicTacToeScreen(
+fun SingleModeScreen(
     modifier: Modifier = Modifier,
     box: List<GameBox>,
     status: GameStatus,
@@ -143,7 +143,7 @@ private fun AlertGameResult(
 private fun TicTacToeLightPreview() {
     TicTacToeTheme(false) {
         Surface {
-            TicTacToeScreen(
+            SingleModeScreen(
                 box = listOf(
                     GameBox(CellPosition.TopStart, Cell.X),
                     GameBox(CellPosition.TopCenter, Cell.Empty),
@@ -166,7 +166,7 @@ private fun TicTacToeLightPreview() {
 private fun TicTacToeDarkPreview() {
     TicTacToeTheme {
         Surface {
-            TicTacToeScreen(
+            SingleModeScreen(
                 box = listOf(
                     GameBox(CellPosition.TopStart, Cell.Empty),
                     GameBox(CellPosition.TopCenter, Cell.O),

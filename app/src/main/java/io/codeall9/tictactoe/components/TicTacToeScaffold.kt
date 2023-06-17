@@ -1,5 +1,6 @@
 package io.codeall9.tictactoe.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -11,27 +12,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.codeall9.tictactoe.R
+import io.codeall9.tictactoe.model.AppState
+import io.codeall9.tictactoe.model.rememberAppState
 import io.codeall9.tictactoe.theme.TicTacToeTheme
 import kotlinx.coroutines.launch
+
+enum class TopLevelDestination(@StringRes val title: Int) {
+    SINGLE_GAME(R.string.app_name),
+    REPLAY(R.string.replay_title),
+    ;
+}
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun TicTacToeScaffold(
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+    appState: AppState = rememberAppState(),
     playedListContent: @Composable ColumnScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-    val navPlayedList: () -> Unit = {
-        scope.launch { bottomSheetState.show() }
-    }
+) = with(appState) {
     TicTacToeTheme {
         ModalBottomSheetLayout(
             sheetContent = { playedListContent() },
             sheetState = bottomSheetState,
         ) {
             Scaffold(
-                topBar = { TicTacToeAppbar(navPlayedList = navPlayedList) },
+                topBar = {
+                    TicTacToeAppbar(
+                        title = stringResource(id = getTopLevelDestination().title),
+                        navPlayedList = {
+                            topLevelScope.launch { bottomSheetState.show() }
+                        }
+                    )
+                },
                 content = content
             )
         }
@@ -41,6 +53,7 @@ fun TicTacToeScaffold(
 @Composable
 private fun TicTacToeAppbar(
     menuVisible: MutableState<Boolean> = remember { mutableStateOf(false) },
+    title: String,
     navPlayedList: () -> Unit,
 ) {
     val (isExpanded, showMenu) = menuVisible
@@ -49,7 +62,7 @@ private fun TicTacToeAppbar(
         navPlayedList()
     }
     TopAppBar(
-        title = { Text(text = stringResource(id = R.string.app_name)) },
+        title = { Text(text = title) },
         actions = {
             IconButton(
                 onClick = { showMenu(!isExpanded) },
@@ -75,7 +88,6 @@ private fun TicTacToeAppbar(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 private fun ScaffoldPreview() {

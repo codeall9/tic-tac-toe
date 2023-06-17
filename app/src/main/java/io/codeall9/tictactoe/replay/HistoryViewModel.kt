@@ -34,7 +34,7 @@ class HistoryViewModel(
     private val selectedRound = MutableStateFlow(1)
 
     private val history = savedStateHandle
-        .getLiveData<UUID>("HistoryId")
+        .getLiveData<UUID>(REPLAY_ARG_HISTORY_ID)
         .asFlow()
         .distinctUntilChanged()
         .mapNotNull { uuid -> getHistory(HistoryId.of(uuid)) }
@@ -54,7 +54,7 @@ class HistoryViewModel(
 
 
     fun replayGame(uuid: UUID) {
-        savedStateHandle["HistoryId"] = uuid
+        savedStateHandle[REPLAY_ARG_HISTORY_ID] = uuid
         selectedRound.update { 1 }
     }
 

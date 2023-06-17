@@ -4,4 +4,5 @@
     <string name="game_winner">%s win 🎉🎉</string>
     <string name="game_tie">Tie</string>
     <string name="button_restart">Restart</string>
+    <string name="replay_title">Game Replay</string>
 </resources>
